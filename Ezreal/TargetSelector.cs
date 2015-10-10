@@ -9,6 +9,9 @@ namespace Ezreal
 {
     public class TargetSelector
     {
+        private static AIHeroClient _target;
+        private static int _lastClick;
+
         public static void Init()
         {
             Game.OnWndProc += Game_OnWndProc;
@@ -33,9 +36,6 @@ namespace Ezreal
             }
             return GetTarget(range, type);
         }
-
-        private static AIHeroClient _target;
-        private static int _lastClick;
 
         private static void Game_OnWndProc(WndEventArgs args)
         {

@@ -3,12 +3,12 @@ using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
-using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
+
 namespace Dancing_Cassio
 {
-    class Cassiopeia
+    internal class Cassiopeia
     {
         public static Spell.Skillshot Q;
         public static Spell.Skillshot W;
@@ -27,7 +27,7 @@ namespace Dancing_Cassio
             Q = new Spell.Skillshot(SpellSlot.Q, 750, SkillShotType.Circular, 750, 0, 40);
             W = new Spell.Skillshot(SpellSlot.W, 850, SkillShotType.Circular, 500, 0, 90);
             E = new Spell.Targeted(SpellSlot.E, 700);
-            R = new Spell.Skillshot(SpellSlot.R, 825, SkillShotType.Cone, 600, 0, (int)(80 * Math.PI / 180));
+            R = new Spell.Skillshot(SpellSlot.R, 825, SkillShotType.Cone, 600, 0, (int) (80*Math.PI/180));
 
             CassioMenu = MainMenu.AddMenu("Dancing Cassio", "cassio.enemy");
             CassioMenu.AddGroupLabel("Dancing Cassio");
@@ -65,6 +65,7 @@ namespace Dancing_Cassio
 
             Game.OnTick += Game_OnTick;
         }
+
         private static void Game_OnTick(EventArgs args)
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
@@ -81,30 +82,29 @@ namespace Dancing_Cassio
             {
                 LaneClear();
             }
-
         }
 
 
         private static float Damage(Obj_AI_Base enemy)
         {
-            var qDamage = Q.IsReady() ? DamageLibrary.GetSpellDamage(ObjectManager.Player, enemy, SpellSlot.Q) : 0;
-            var wDamage = W.IsReady() ? DamageLibrary.GetSpellDamage(ObjectManager.Player, enemy, SpellSlot.W) : 0;
-            var eDamage = E.IsReady() ? DamageLibrary.GetSpellDamage(ObjectManager.Player, enemy, SpellSlot.E) : 0;
-            var rDamage = R.IsReady() ? DamageLibrary.GetSpellDamage(ObjectManager.Player, enemy, SpellSlot.R) : 0;
-            var Damage = 0d;
+            var qDamage = Q.IsReady() ? ObjectManager.Player.GetSpellDamage(enemy, SpellSlot.Q) : 0;
+            var wDamage = W.IsReady() ? ObjectManager.Player.GetSpellDamage(enemy, SpellSlot.W) : 0;
+            var eDamage = E.IsReady() ? ObjectManager.Player.GetSpellDamage(enemy, SpellSlot.E) : 0;
+            var rDamage = R.IsReady() ? ObjectManager.Player.GetSpellDamage(enemy, SpellSlot.R) : 0;
+            var damage = 0d;
 
-            Damage += qDamage;
-            Damage += wDamage;
-            Damage += eDamage * 3;
+            damage += qDamage;
+            damage += wDamage;
+            damage += eDamage*3;
 
             if (R.IsReady())
             {
-                Damage += qDamage;
-                Damage += eDamage;
-                Damage += rDamage;
+                damage += qDamage;
+                damage += eDamage;
+                damage += rDamage;
             }
 
-            return (float)Damage;
+            return (float) damage;
         }
 
 
@@ -114,65 +114,38 @@ namespace Dancing_Cassio
             var useW = ComboMenu["combo.w"].Cast<CheckBox>().CurrentValue;
             var useE = ComboMenu["combo.e"].Cast<CheckBox>().CurrentValue;
             var useR = ComboMenu["combo.r"].Cast<CheckBox>().CurrentValue;
-            if (useQ && Q.IsReady())
+            var target = TargetSelector.GetTarget(Q.Range + W.Range + E.Range + R.Range, DamageType.Magical);
+            if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.High && !target.IsDead && !target.IsZombie && target.IsValidTarget(Q.Range))
             {
-                foreach (
-                    var target in HeroManager.Enemies.Where(o => o.IsValidTarget(Q.Range) && !o.IsDead && !o.IsZombie))
-                {
-                    if (Q.GetPrediction(target).HitChance >= HitChance.High)
-                    {
-                        Q.Cast(target);
-                    }
-                }
+                Q.Cast(target.ServerPosition);
             }
-
-            if (useW && W.IsReady())
+            if (useW && W.IsReady() && W.GetPrediction(target).HitChance >= HitChance.High && !target.IsDead && !target.IsZombie && target.IsValidTarget(W.Range))
             {
-                foreach (
-                    var target in HeroManager.Enemies.Where(o => o.IsValidTarget(W.Range) && !o.IsDead && !o.IsZombie))
-                {
-                    if (W.GetPrediction(target).HitChance >= HitChance.High)
-                    {
-                        W.Cast(target);
-                    }
-                }
+                W.Cast(target.ServerPosition);
             }
-
-            if (useE && E.IsReady())
+            if (useE && E.IsReady() && target.HasBuffOfType(BuffType.Poison) && !target.IsDead && !target.IsZombie && target.IsValidTarget(E.Range))
             {
-                foreach (
-                    var target in HeroManager.Enemies.Where(o => o.IsValidTarget(E.Range) && !o.IsDead && !o.IsZombie
-                                                                 && o.HasBuffOfType(BuffType.Poison) ||
-                                                                 ObjectManager.Player.GetSpellDamage(o, SpellSlot.E) >=
-                                                                 o.Health))
-
-
-                {
-                    E.Cast(target);
-                }
+                E.Cast(target.ServerPosition);
             }
-
             if (useR && R.IsReady())
             {
-                foreach (
-                    var target in HeroManager.Enemies.Where(o => o.IsValidTarget(R.Range) && !o.IsDead && !o.IsZombie
-                                                                 && o.IsFacing(ObjectManager.Player) &&
-                                                                 ObjectManager.Player.GetSpellDamage(o, SpellSlot.R) >=
-                                                                 o.Health))
+                if (!target.IsDead && !target.IsZombie && target.IsFacing(ObjectManager.Player) && target.IsValidTarget(R.Range))
                 {
-
-                    if (Damage(target) >= target.Health || (target.IsFacing(ObjectManager.Player) &&
-                                                              Damage(target) + (DamageLibrary.GetSpellDamage(ObjectManager.Player, target, SpellSlot.R)*3) >=
-                                                              target.Health))
                     {
-                        var result = R.GetPrediction(target);
-                        if (result.HitChance >= HitChance.High)
+                        if (Damage(target) >= target.Health || (target.IsFacing(ObjectManager.Player) &&
+                                                                Damage(target) +
+                                                                (ObjectManager.Player.GetSpellDamage(target, SpellSlot.R) * 3) >=
+                                                                target.Health))
                         {
-                            R.Cast(result.CastPosition);
+                            var result = R.GetPrediction(target);
+                            if (result.HitChance >= HitChance.High)
+                            {
+                                R.Cast(result.CastPosition);
+                            }
                         }
-                    }
-
+                    } 
                 }
+
             }
         }
 
@@ -202,6 +175,7 @@ namespace Dancing_Cassio
                 }
             }
         }
+
         private static void LaneClear()
         {
             var useQ = LaneClearMenu["laneclear.q"].Cast<CheckBox>().CurrentValue;
@@ -221,7 +195,6 @@ namespace Dancing_Cassio
                         Q.Cast(pred2.CastPosition);
                     }
                 }
-
             }
             if (useW && W.IsReady())
             {
@@ -234,7 +207,6 @@ namespace Dancing_Cassio
                         W.Cast(pred2.CastPosition);
                     }
                 }
-
             }
             if (useE && E.IsReady())
             {

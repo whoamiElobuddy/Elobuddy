@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Ezreal</RootNamespace>
     <AssemblyName>Ezreal</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -74,16 +75,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EloBuddy">
-      <HintPath>..\..\..\SCRIPT XDXd\EloBuddy\System\EloBuddy.dll</HintPath>
+      <HintPath>D:\dasd\EloBuddy.dll</HintPath>
     </Reference>
     <Reference Include="EloBuddy.SDK">
-      <HintPath>..\..\..\SCRIPT XDXd\EloBuddy\System\EloBuddy.SDK.dll</HintPath>
+      <HintPath>D:\dasd\EloBuddy.SDK.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>..\..\..\SCRIPT XDXd\EloBuddy\System\SharpDX.dll</HintPath>
+      <HintPath>D:\dasd\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>..\..\..\SCRIPT XDXd\EloBuddy\System\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>D:\dasd\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

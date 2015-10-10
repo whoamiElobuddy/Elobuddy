@@ -2,9 +2,9 @@
 
 namespace Ezreal
 {
-    class Program
+    internal class Program
     {
-        static void Main()
+        private static void Main()
         {
             Loading.OnLoadingComplete += eventArgs => Ezreal.OnLoad();
         }
