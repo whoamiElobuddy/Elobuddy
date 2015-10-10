@@ -114,7 +114,7 @@ namespace Dancing_Cassio
             var useW = ComboMenu["combo.w"].Cast<CheckBox>().CurrentValue;
             var useE = ComboMenu["combo.e"].Cast<CheckBox>().CurrentValue;
             var useR = ComboMenu["combo.r"].Cast<CheckBox>().CurrentValue;
-            var target = TargetSelector.GetTarget(Q.Range + W.Range + E.Range + R.Range, DamageType.Magical);
+            var target = TargetSelector.GetTarget(R.Range, DamageType.Magical);
             if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.High && !target.IsDead && !target.IsZombie && target.IsValidTarget(Q.Range))
             {
                 Q.Cast(target.ServerPosition);
